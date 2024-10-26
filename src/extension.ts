@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-
+import { GEMINI_API_KEY } from './env';
 
 export function activate(context: vscode.ExtensionContext) {
     let timer: NodeJS.Timeout | undefined;
@@ -30,7 +30,17 @@ export function activate(context: vscode.ExtensionContext) {
                             const duration2 = parseInt(message.duration2, 10);
                             remainingTime = duration1 * 60 + duration2;
                             updateDisplayedTime(webviewView);
-                        }
+                        }else if (message.command === 'getHint') {
+							// Gemini APIリクエスト
+							getProgrammingHint(message.language, message.specification)
+								.then((hint) => {
+									webviewView.webview.postMessage({ command: 'showHint', hint });
+								})
+								.catch((error) => {
+									console.error('Error fetching hint:', error);
+									webviewView.webview.postMessage({ command: 'showHint', hint: 'ヒントの取得に失敗しました。' });
+								});
+						}
                     },
                     undefined,
                     context.subscriptions
@@ -38,6 +48,67 @@ export function activate(context: vscode.ExtensionContext) {
             }
         })
     );
+
+
+	// // Gemini APIにリクエストを送り、ヒントを取得する関数
+	// async function getProgrammingHint(language: string, specification: string): Promise<string> {
+	// 	const prompt = `以下の条件に従って、仕様を満たすコードを書くためのヒントを書いてください。\n1 言語：${language}\n2 仕様：${specification}`;
+		
+	// 	// Gemini APIリクエストの送信
+	// 	const response = await fetch('https://api.gemini.com/v1/chat', {
+	// 		method: 'POST',
+	// 		headers: {
+	// 			'Content-Type': 'application/json',
+	// 			'Authorization': GEMINI_API_KEY // ここにAPIキーを追加
+	// 		},
+	// 		body: JSON.stringify({ prompt })
+	// 	});
+
+	// 	const data = await response.json();
+	// 	return data.hint || 'ヒントの取得に失敗しました。';
+	// }
+
+	async function getProgrammingHint(language: string, specification: string,level:string): Promise<string> {
+		try {
+			const prompt = `###プロンプト###\n以下の条件に従って、仕様を満たすコードを書くためのヒントを書いてください。字数は日本語で${level}字程度です。\n###プログラミング言語###\n${language}\n###仕様###\n${specification}`;
+			
+			const response = await fetch(
+				'https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=' + GEMINI_API_KEY,
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({
+						contents: [{
+							parts: [{
+								text: prompt
+							}]
+						}]
+					})
+				}
+			);
+	
+			if (!response.ok) {
+				const errorText = await response.text();
+				console.error('API Error:', errorText);
+				throw new Error(`API request failed with status ${response.status}`);
+			}
+	
+			const data = await response.json();
+			
+			// Gemini APIのレスポンス構造に基づいてテキストを抽出
+			const hint = data.candidates?.[0]?.content?.parts?.[0]?.text;
+			if (!hint) {
+				throw new Error('APIからの応答が期待された形式ではありません');
+			}
+			
+			return hint;
+		} catch (error) {
+			console.error('Error in getProgrammingHint:', error);
+			return 'ヒントの取得に失敗しました: ' + (error as Error).message;
+		}
+	}
 
     function startCountdown(webviewView: vscode.WebviewView) {
         timer = setInterval(() => {
@@ -105,6 +176,24 @@ function getWebviewContent(): string {
 
             <h2>残り時間: <span id="countdown">00:00</span></h2>
 
+
+			<form id="hintForm">
+				<label for="language">プログラミング言語：</label><br>
+				<input type="test" id = "language" name = "language">
+				<br><br>
+				<label for="specification">仕様：</label><br>
+				<textarea id="specification" name="specification"></textarea>
+				<br><br>
+				<label for="level">ヒントのレベル：</label><br>
+				<label for="level">低　　　　中　　　　高</label><br>
+				<<input type="range" id="level" name="level" step="200" min="200" max="600">
+				<br><br>
+				<button type="button" id = "getHintButton">ヒントを取得</button>
+			</form>
+			<h4>ヒント:</h4>
+			<div id="hintOutput">ここにヒントが表示されます</div>
+
+
             <script>
                 const vscode = acquireVsCodeApi();
 
@@ -118,6 +207,26 @@ function getWebviewContent(): string {
                 document.getElementById('toggleButton').addEventListener('click', () => {
                     vscode.postMessage({ command: 'toggleTimer' });
                 });
+
+
+
+				document.getElementById("getHintButton").addEventListener("click",() =>{
+					const language = document.getElementById("language").value;
+					const specification = document.getElementById("specification").value;
+					const level = document.getElementById("level").value;
+					vscode.postMessage({command:"getHint",language,specification,level});
+				});
+
+				window.addEventListener('message', event => {
+					const message = event.data;
+					switch (message.command) {
+						case 'showHint':
+							document.getElementById('hintOutput').innerText = message.hint;
+							break;
+					}
+				});
+
+
 
                 document.getElementById('duration1').addEventListener('input', updateRemainingTime);
                 document.getElementById('duration2').addEventListener('input', updateRemainingTime);
