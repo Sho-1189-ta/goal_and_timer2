@@ -68,9 +68,9 @@ export function activate(context: vscode.ExtensionContext) {
 	// 	return data.hint || 'ヒントの取得に失敗しました。';
 	// }
 
-	async function getProgrammingHint(language: string, specification: string): Promise<string> {
+	async function getProgrammingHint(language: string, specification: string,level:string): Promise<string> {
 		try {
-			const prompt = `###プロンプト###\n以下の条件に従って、仕様を満たすコードを書くためのヒントを書いてください。字数は日本語で２００字程度です。\n###プログラミング言語###\n${language}\n###仕様###\n${specification}`;
+			const prompt = `###プロンプト###\n以下の条件に従って、仕様を満たすコードを書くためのヒントを書いてください。字数は日本語で${level}字程度です。\n###プログラミング言語###\n${language}\n###仕様###\n${specification}`;
 			
 			const response = await fetch(
 				'https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=' + GEMINI_API_KEY,
@@ -184,6 +184,10 @@ function getWebviewContent(): string {
 				<label for="specification">仕様：</label><br>
 				<textarea id="specification" name="specification"></textarea>
 				<br><br>
+				<label for="level">ヒントのレベル：</label><br>
+				<label for="level">低　　　　中　　　　高</label><br>
+				<<input type="range" id="level" name="level" step="200" min="200" max="600">
+				<br><br>
 				<button type="button" id = "getHintButton">ヒントを取得</button>
 			</form>
 			<h4>ヒント:</h4>
@@ -209,7 +213,8 @@ function getWebviewContent(): string {
 				document.getElementById("getHintButton").addEventListener("click",() =>{
 					const language = document.getElementById("language").value;
 					const specification = document.getElementById("specification").value;
-					vscode.postMessage({command:"getHint",language,specification});
+					const level = document.getElementById("level").value;
+					vscode.postMessage({command:"getHint",language,specification,level});
 				});
 
 				window.addEventListener('message', event => {
