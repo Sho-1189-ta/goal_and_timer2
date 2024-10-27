@@ -179,6 +179,91 @@ function getWebviewContent(): string {
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>コード・タイマー</title>
+            <style>
+            /* 全体のレイアウト */
+            body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 20px;
+                background-color: #f3f4f6;
+                color: #333;
+            }
+
+            h1, h2 {
+                color: #333;
+                font-weight: bold;
+            }
+
+            h1 {
+                font-size: 1.6em;
+                text-align: center;
+                margin-bottom: 20px;
+            }
+
+            /* フォームのスタイル */
+            form {
+                background: #fff;
+                padding: 15px;
+                border-radius: 5px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                margin-bottom: 20px;
+            }
+
+            label {
+                display: block;
+                font-weight: bold;
+                margin: 10px 0 5px;
+            }
+
+            input[type="text"], input[type="number"], textarea {
+                width: 100%;
+                padding: 8px;
+                margin-top: 5px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+            }
+
+            /* ボタンのスタイル */
+            button {
+                background-color: #4CAF50;
+                color: white;
+                padding: 10px 20px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 1em;
+                margin-top: 10px;
+            }
+
+            button:hover {
+                background-color: #45a049;
+            }
+
+            /* ヒント出力のスタイル */
+            #hintOutput {
+                background: #e9ecef;
+                padding: 15px;
+                border-radius: 5px;
+                margin-top: 10px;
+                font-size: 0.9em;
+                color: #333;
+                white-space: pre-wrap;
+            }
+
+            /* タイマー表示のスタイル */
+            #countdown {
+                font-size: 2em;
+                color: #e63946;
+                font-weight: bold;
+                margin-top: 10px;
+            }
+
+            /* スライダーのスタイル */
+            input[type="range"] {
+                width: 100%;
+                margin-top: 10px;
+            }
+        </style>
         </head>
         <body>
             <h1>コード・タイマー</h1>
