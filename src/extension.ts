@@ -327,11 +327,13 @@ function getWebviewContent(): string {
                 <label for="duration2">秒:</label>
                 <input type="number" id="duration2" name="duration2" min="0" max="60">
                 </div>
-                <br><br>
-                <button type="submit">スタート</button>
+                <br>
+                <div style="display: flex; justify-content: space-between;">
+                    <button type="submit" style="margin-left: 20px;">スタート</button>
+                    <button id="toggleButton" style="margin-right: 20px;">停止 / 再開</button>
+                </div>
             </form>
-            <br>
-            <button id="toggleButton">停止 / 再開</button>
+
 
             <h2>残り時間: <span id="countdown">00:00</span></h2>
 
@@ -342,9 +344,12 @@ function getWebviewContent(): string {
 				<label for="specification">仕様：</label><br>
 				<textarea id="specification" name="specification"></textarea>
 				<br><br>
-				<label for="level">ヒントのレベル：</label><br>
-				<label for="level">低　　　　　　中　　　　　　高</label><br>
-				<<input type="range" id="level" name="level" step="200" min="200" max="600">
+                <label for="level">ヒントのレベル:</label><br>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>低</span>
+                    <input type="range" id="level" name="level" step="200" min="200" max="600" style="flex: 1; margin: 0 10px;">
+                    <span>高</span>
+                </div>
 				<br><br>
 				<button type="button" id = "getHintButton">ヒントを取得</button>
 			</form>
