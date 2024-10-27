@@ -183,90 +183,136 @@ function getWebviewContent(): string {
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>コード・タイマー</title>
-            <style>
-            /* 全体のレイアウト */
-            body {
-                font-family: Arial, sans-serif;
-                margin: 0;
-                padding: 20px;
-                background-color: #f3f4f6;
-                color: #333;
-            }
+        <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 15px;
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+        }
 
-            h1, h2 {
-                color: #333;
-                font-weight: bold;
+        h1, h2 {
+            color: #d4d4d4;
+            font-weight: bold;
+        }
+
+        h1 {
+            font-size: 1.4em;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        h2 {
+            font-size: 1.2em;
+            margin-top: 10px;
+        }
+
+        /* フォームのスタイル */
+        form {
+            background: #2d2d2d;
+            padding: 10px;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin: 5px 0 3px;
+            color: #c0c0c0;
+        }
+
+        input[type="text"], input[type="number"], textarea {
+            width: calc(100% - 14px); /* ボーダーやパディングによるズレを調整 */
+            padding: 6px;
+            margin-top: 3px;
+            border: 1px solid #555;
+            border-radius: 4px;
+            background-color: #3c3c3c;
+            color: #e0e0e0;
+        }
+
+        /* 分と秒の入力を横並びに */
+        .time-input-group {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .time-input-group label {
+            margin: 0;
+        }
+
+        input[type="number"] {
+            width: calc(50% - 10px); /* 2つの入力欄を半分ずつの幅に調整 */
+        }
+
+        /* ボタンのスタイル */
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-top: 8px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        /* ヒント出力のスタイル */
+        #hintOutput {
+            background: #3a3f44;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-size: 0.85em;
+            color: #e0e0e0;
+            white-space: pre-wrap;
+            border-left: 4px solid #4CAF50;
+        }
+
+        /* タイマー表示のスタイル */
+        #countdown {
+            font-size: 1.8em;
+            color: #f48771;
+            font-weight: bold;
+            margin-top: 5px;
+            display: inline-block;
+        }
+
+        /* スライダーのスタイル */
+        input[type="range"] {
+            width: 100%;
+            margin-top: 5px;
+            accent-color: #4CAF50;
+            background-color: #3c3c3c;
+        }
+
+        /* レスポンシブ対応 */
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
             }
 
             h1 {
-                font-size: 1.6em;
-                text-align: center;
-                margin-bottom: 20px;
+                font-size: 1.3em;
             }
 
-            /* フォームのスタイル */
-            form {
-                background: #fff;
-                padding: 15px;
-                border-radius: 5px;
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-                margin-bottom: 20px;
-            }
-
-            label {
-                display: block;
-                font-weight: bold;
-                margin: 10px 0 5px;
-            }
-
-            input[type="text"], input[type="number"], textarea {
-                width: 100%;
-                padding: 8px;
-                margin-top: 5px;
-                border: 1px solid #ccc;
-                border-radius: 4px;
-            }
-
-            /* ボタンのスタイル */
             button {
-                background-color: #4CAF50;
-                color: white;
-                padding: 10px 20px;
-                border: none;
-                border-radius: 4px;
-                cursor: pointer;
-                font-size: 1em;
-                margin-top: 10px;
+                padding: 6px 12px;
+                font-size: 0.85em;
             }
 
-            button:hover {
-                background-color: #45a049;
-            }
-
-            /* ヒント出力のスタイル */
             #hintOutput {
-                background: #e9ecef;
-                padding: 15px;
-                border-radius: 5px;
-                margin-top: 10px;
-                font-size: 0.9em;
-                color: #333;
-                white-space: pre-wrap;
+                font-size: 0.8em;
             }
-
-            /* タイマー表示のスタイル */
-            #countdown {
-                font-size: 2em;
-                color: #e63946;
-                font-weight: bold;
-                margin-top: 10px;
-            }
-
-            /* スライダーのスタイル */
-            input[type="range"] {
-                width: 100%;
-                margin-top: 10px;
-            }
+        }
         </style>
         </head>
         <body>
@@ -275,10 +321,12 @@ function getWebviewContent(): string {
                 <label for="functionName">作るものの概要:</label>
                 <input type="text" id="functionName" name="functionName">
                 <br><br>
+                <div class="time-input-group">
                 <label for="duration1">分:</label>
                 <input type="number" id="duration1" name="duration1" min="1" max="60">
                 <label for="duration2">秒:</label>
                 <input type="number" id="duration2" name="duration2" min="0" max="60">
+                </div>
                 <br><br>
                 <button type="submit">スタート</button>
             </form>
@@ -295,7 +343,7 @@ function getWebviewContent(): string {
 				<textarea id="specification" name="specification"></textarea>
 				<br><br>
 				<label for="level">ヒントのレベル：</label><br>
-				<label for="level">低　　　　中　　　　高</label><br>
+				<label for="level">低　　　　　　中　　　　　　高</label><br>
 				<<input type="range" id="level" name="level" step="200" min="200" max="600">
 				<br><br>
 				<button type="button" id = "getHintButton">ヒントを取得</button>
