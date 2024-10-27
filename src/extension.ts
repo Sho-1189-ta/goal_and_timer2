@@ -33,9 +33,10 @@ export function activate(context: vscode.ExtensionContext) {
                             updateDisplayedTime(webviewView);
                         }else if (message.command === 'getHint') {
 							// Gemini APIリクエスト
-							getProgrammingHint(message.language, message.specification)
+							getProgrammingHint(message.language, message.specification,message.level)
 								.then((hint) => {
-									webviewView.webview.postMessage({ command: 'showHint', hint });
+                                    const formattedHint = markdownToHtml(hint);  
+									webviewView.webview.postMessage({ command: 'showHint', hint:formattedHint });
 								})
 								.catch((error) => {
 									console.error('Error fetching hint:', error);
@@ -132,6 +133,26 @@ export function activate(context: vscode.ExtensionContext) {
         isTimerRunning = true;
     }
 
+    function markdownToHtml(text: string): string {
+        // エスケープ処理
+        text = text
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
+        
+        return text
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')        // **text** を <strong>text</strong> に変換
+            .replace(/^###\s(.*$)/gm, '<h3>$1</h3>')                // ### text を <h3>text</h3> に変換
+            .replace(/^##\s(.*$)/gm, '<h2>$1</h2>')                 // ## text を <h2>text</h2> に変換
+            .replace(/^#\s(.*$)/gm, '<h1>$1</h1>')                  // # text を <h1>text</h1> に変換
+            .replace(/^\*\s(.*$)/gm, '<ul><li>$1</li></ul>')        // * item を <ul><li>item</li></ul> に変換
+            .replace(/(<\/ul>\s*)<ul>/g, '')                        // 連続した<ul>タグを1つにまとめる
+            .replace(/```([^`]+)```/gs, '<pre><code>$1</code></pre>') // ```code``` を <pre><code>code</code></pre> に変換
+            .replace(/"""([^"]+?)"""/gs, '<pre><code>$1</code></pre>') // """docstring""" を <pre><code>docstring</code></pre> に変換
+            .replace(/`([^`]+)`/g, '<code>$1</code>');              // `code` を <code>code</code> に変換
+    }
+    
+
     function toggleTimer(webviewView: vscode.WebviewView) {
         if (isTimerRunning) {
             if (isPaused) {
@@ -162,6 +183,91 @@ function getWebviewContent(): string {
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>コード・タイマー</title>
+            <style>
+            /* 全体のレイアウト */
+            body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 20px;
+                background-color: #f3f4f6;
+                color: #333;
+            }
+
+            h1, h2 {
+                color: #333;
+                font-weight: bold;
+            }
+
+            h1 {
+                font-size: 1.6em;
+                text-align: center;
+                margin-bottom: 20px;
+            }
+
+            /* フォームのスタイル */
+            form {
+                background: #fff;
+                padding: 15px;
+                border-radius: 5px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                margin-bottom: 20px;
+            }
+
+            label {
+                display: block;
+                font-weight: bold;
+                margin: 10px 0 5px;
+            }
+
+            input[type="text"], input[type="number"], textarea {
+                width: 100%;
+                padding: 8px;
+                margin-top: 5px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+            }
+
+            /* ボタンのスタイル */
+            button {
+                background-color: #4CAF50;
+                color: white;
+                padding: 10px 20px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 1em;
+                margin-top: 10px;
+            }
+
+            button:hover {
+                background-color: #45a049;
+            }
+
+            /* ヒント出力のスタイル */
+            #hintOutput {
+                background: #e9ecef;
+                padding: 15px;
+                border-radius: 5px;
+                margin-top: 10px;
+                font-size: 0.9em;
+                color: #333;
+                white-space: pre-wrap;
+            }
+
+            /* タイマー表示のスタイル */
+            #countdown {
+                font-size: 2em;
+                color: #e63946;
+                font-weight: bold;
+                margin-top: 10px;
+            }
+
+            /* スライダーのスタイル */
+            input[type="range"] {
+                width: 100%;
+                margin-top: 10px;
+            }
+        </style>
         </head>
         <body>
             <h1>コード・タイマー</h1>
@@ -194,7 +300,7 @@ function getWebviewContent(): string {
 				<br><br>
 				<button type="button" id = "getHintButton">ヒントを取得</button>
 			</form>
-			<h4>ヒント:</h4>
+			<br><br>
 			<div id="hintOutput">ここにヒントが表示されます</div>
 
 
@@ -258,10 +364,18 @@ function getWebviewContent(): string {
                             break;
                     }
                 });
+                window.addEventListener('message', event => {
+                    const message = event.data;
+                    switch (message.command) {
+                        case 'showHint':
+                            // 受け取ったHTML形式のヒントを直接表示
+                            document.getElementById('hintOutput').innerHTML = message.hint;
+                            break;
+                    }
+                });
             </script>
         </body>
         </html>
     `;
 }
-
 export function deactivate() {}
