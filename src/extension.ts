@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { GEMINI_API_KEY } from './env';
 
+
 export function activate(context: vscode.ExtensionContext) {
     let timer: NodeJS.Timeout | undefined;
     let isTimerRunning = false;
@@ -120,6 +121,10 @@ export function activate(context: vscode.ExtensionContext) {
                     clearInterval(timer);
                     isTimerRunning = false;
                     isPaused = false;
+                    vscode.window.showInformationMessage('タイマーが終了しました！サイドバーを確認してください。',
+                        { modal: true },
+                        'OK'
+                    );
                     webviewView.webview.postMessage({ command: 'timeUp' });
                 }
             }
@@ -175,7 +180,6 @@ function getWebviewContent(): string {
             <button id="toggleButton">停止 / 再開</button>
 
             <h2>残り時間: <span id="countdown">00:00</span></h2>
-
 
 			<form id="hintForm">
 				<label for="language">プログラミング言語：</label><br>
