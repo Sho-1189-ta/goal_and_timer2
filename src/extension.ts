@@ -32,9 +32,10 @@ export function activate(context: vscode.ExtensionContext) {
                             updateDisplayedTime(webviewView);
                         }else if (message.command === 'getHint') {
 							// Gemini APIリクエスト
-							getProgrammingHint(message.language, message.specification)
+							getProgrammingHint(message.language, message.specification,message.level)
 								.then((hint) => {
-									webviewView.webview.postMessage({ command: 'showHint', hint });
+                                    const formattedHint = markdownToHtml(hint);  
+									webviewView.webview.postMessage({ command: 'showHint', hint :formattedHint});
 								})
 								.catch((error) => {
 									console.error('Error fetching hint:', error);
@@ -109,6 +110,27 @@ export function activate(context: vscode.ExtensionContext) {
 			return 'ヒントの取得に失敗しました: ' + (error as Error).message;
 		}
 	}
+
+    function markdownToHtml(text: string): string {
+        // エスケープ処理
+        text = text
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
+        
+        return text
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')        // **text** を <strong>text</strong> に変換
+            .replace(/^###\s(.*$)/gm, '<h3>$1</h3>')                // ### text を <h3>text</h3> に変換
+            .replace(/^##\s(.*$)/gm, '<h2>$1</h2>')                 // ## text を <h2>text</h2> に変換
+            .replace(/^#\s(.*$)/gm, '<h1>$1</h1>')                  // # text を <h1>text</h1> に変換
+            .replace(/^\*\s(.*$)/gm, '<ul><li>$1</li></ul>')        // * item を <ul><li>item</li></ul> に変換
+            .replace(/(<\/ul>\s*)<ul>/g, '')                        // 連続した<ul>タグを1つにまとめる
+            .replace(/```([^`]+)```/gs, '<pre><code>$1</code></pre>') // ```code``` を <pre><code>code</code></pre> に変換
+            .replace(/"""([^"]+?)"""/gs, '<pre><code>$1</code></pre>') // """docstring""" を <pre><code>docstring</code></pre> に変換
+            .replace(/`([^`]+)`/g, '<code>$1</code>');              // `code` を <code>code</code> に変換
+    }
+    
+    
 
     function startCountdown(webviewView: vscode.WebviewView) {
         timer = setInterval(() => {
@@ -190,7 +212,7 @@ function getWebviewContent(): string {
 				<br><br>
 				<button type="button" id = "getHintButton">ヒントを取得</button>
 			</form>
-			<h4>ヒント:</h4>
+			<br><br>
 			<div id="hintOutput">ここにヒントが表示されます</div>
 
 
@@ -251,6 +273,15 @@ function getWebviewContent(): string {
                             break;
                         case 'timerResumed':
                             alert('Timer resumed!');
+                            break;
+                    }
+                });
+                window.addEventListener('message', event => {
+                    const message = event.data;
+                    switch (message.command) {
+                        case 'showHint':
+                            // 受け取ったHTML形式のヒントを直接表示
+                            document.getElementById('hintOutput').innerHTML = message.hint;
                             break;
                     }
                 });
