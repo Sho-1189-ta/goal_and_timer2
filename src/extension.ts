@@ -74,8 +74,8 @@ export function activate(context: vscode.ExtensionContext) {
 		try {
 			const prompt = `###プロンプト###\n以下の条件に従って、仕様を満たすコードを書くためのヒントを書いてください。字数は日本語で${level}字程度です。\n###プログラミング言語###\n${language}\n###仕様###\n${specification}`;
 			
-			const response = await fetch(
-				'https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=' + GEMINI_API_KEY,
+			const result = await fetch(
+				'https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key=' + GEMINI_API_KEY,
 				{
 					method: 'POST',
 					headers: {
@@ -91,16 +91,25 @@ export function activate(context: vscode.ExtensionContext) {
 				}
 			);
 	
-			if (!response.ok) {
-				const errorText = await response.text();
+			if (!result.ok) {
+				const errorText = await result.text();
 				console.error('API Error:', errorText);
-				throw new Error(`API request failed with status ${response.status}`);
+				throw new Error(`API request failed with status ${result.status}`);
 			}
 	
-			const data = await response.json();
+			const response = await result.json() as {
+				candidates?: Array<{
+					content?: {
+						parts?: Array<{
+							text?: string;
+						}>;
+					};
+				}>;
+			};
 			
 			// Gemini APIのレスポンス構造に基づいてテキストを抽出
-			const hint = data.candidates?.[0]?.content?.parts?.[0]?.text;
+			const hint = response.candidates?.[0]?.content?.parts?.[0]?.text;
+            console.log(hint);
 			if (!hint) {
 				throw new Error('APIからの応答が期待された形式ではありません');
 			}
