@@ -1,71 +1,42 @@
-# vs-devio-opener README
+# Goal-And-Timer (VSCode拡張機能) ⏰
 
-This is the README for your extension "vs-devio-opener". After writing up a brief description, we recommend including the following sections.
+## 概要
 
-## Features
+VSCodeの拡張機能「Goal-And-Timer」は、開発タスクとタイマーを設定して、ゲーム感覚で開発ができることを目指した、開発者向けの拡張機能です。🎮
+Gemini APIによるヒント機能を用いて、プロンプトやヒントのレベルを指定すると、開発中の疑問点を解消するためのヒントを提供します。💡
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+## 機能
 
-For example if there is an image subfolder under your extension project workspace:
+* VSCode APIを用いた拡張機能の設計・実装 🛠️
+* VSCodeのサイドバーに表示するアイコンの実装 🎨
+* UI(タイマー設定・起動・停止・再開、タスク設定)の実装 ⚙️
+* 開発タスクを設定できる機能の実装 📝
+* タイマー終了後のモーダルウィンドウの実装 🔔
+* Gemini APIによるヒント機能 🤖
 
-\!\[feature X\]\(images/feature-x.png\)
+## 特徴
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+* **コードエディタ内で完結:** 別途アプリ等を起動する必要がなく、開発タスク設定・タイマー設定・ヒント機能の利用を全てVSCode内で完結できます。 💻✨
+* **Gemini APIによる出力制御:** AIの助けを借りつつ、ある程度自分で考えて解決していくことを目指すため、出力する文字数を制限する度合を調整できます。 🧠⚖️
+* **作業中断の強制:** タイマー終了後にモーダルウィンドウを表示し、作業を中断させる仕組みを導入。常に前面に表示され、表示中は他の操作ができないため、強制的に休息を取ることを促します。 🧘‍♀️🛑
 
-## Requirements
+## 開発経緯
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+本ハッカソンでは、5日間の準備期間と2日間の開発必須期間が設けられていました。🗓️ 本来はチームでWebアプリケーションを開発する予定でしたが、予定が合わず開発必須期間が迫ってしまいました。そのため、比較的短期間で開発できて独自性の高いと思われるツールを作ることに決め、VSCode拡張機能の開発を行いました。
 
-## Extension Settings
+## 使用技術
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+* 言語: TypeScript ⌨️
+* API: VSCode API, Gemini API 🔗
 
-For example:
+## 開発メンバー
 
-This extension contributes the following settings:
+* 4人チームで開発（このうち自分含め2人はこの拡張機能を開発）👥
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+## 開発期間
 
-## Known Issues
+* 2024年10月（2日間） 📅
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+## 受賞
 
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+* 努力賞 🏆
